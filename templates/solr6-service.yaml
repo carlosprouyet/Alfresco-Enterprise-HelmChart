@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.solr.service.name }}
+spec:
+  type: {{ .Values.solr.service.type }}
+  selector:
+    app: {{ .Chart.Name }}-solr
+    chart: {{ .Chart.Name }}
+    release: {{ .Release.Name }}
+  ports:
+    - protocol: {{ .Values.solr.service.protocol }}
+      port: {{ .Values.solr.service.externalPort }}
+      targetPort: {{ .Values.solr.image.internalPort }}
+      name: {{ .Values.solr.service.name }}

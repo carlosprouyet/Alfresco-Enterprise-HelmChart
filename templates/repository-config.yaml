@@ -1,0 +1,48 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  # the name of the config map
+  name: {{ .Chart.Name }}-repository-configmap
+  labels:
+    app: {{ .Chart.Name }}-repository-configmap
+    chart: {{ .Chart.Name }}
+    release: {{ .Release.Name }}
+data:
+  {{- if .Values.repository.environment }}
+  {{- range $key, $val := .Values.repository.environment }}
+  {{ $key }}: {{ tpl $val $ | quote }}
+  {{- end }}
+  {{- end }}
+  CATALINA_OPTS: ' 
+      -Ddb.driver=org.postgresql.Driver 
+      -Ddb.username={{ .Values.postgres.config.user }} 
+      -Ddb.password={{ .Values.postgres.config.password }}
+      -Ddb.url=jdbc:postgresql://{{ .Values.postgres.service.name }}:{{ .Values.postgres.service.externalPort}}/{{ .Values.postgres.config.db }} 
+      -Dsolr.host={{ .Values.solr.service.name }} 
+      -Dsolr.port={{ .Values.solr.service.externalPort}}
+      -Dsolr.secureComms=secret
+      -Dsolr.sharedSecret=secret
+      -Dsolr.base.url=/solr 
+      -Dindex.subsystem.name=solr6 
+      -Dshare.host={{ .Values.share.service.name }} 
+      -Dshare.port={{ .Values.share.service.externalPort}} 
+      -Dalfresco.host={{ .Values.repository.service.name }} 
+      -Dalfresco.port={{ .Values.repository.image.internalPort }} 
+      -Daos.baseUrlOverwrite=http://localhost:8080/alfresco/aos 
+      -Dmessaging.broker.url="failover:(nio://{{ .Values.activemq.service.name }}:{{ .Values.activemq.service.externalPort}})?timeout=3000&jms.useCompression=true" 
+      -Ddeployment.method=DOCKER_COMPOSE
+      -Dtransform.service.enabled=true
+      -Dtransform.service.url=http://transform-router:8095
+      -Dsfs.url=http://shared-file-store:8099/ 
+      -DlocalTransform.core-aio.url=http://{{ .Values.transformCoreAio.service.name }}:{{ .Values.transformCoreAio.service.externalPort}}/ 
+       '
+  JAVA_TOOL_OPTIONS: '
+      -Dencryption.keystore.type=JCEKS 
+      -Dencryption.cipherAlgorithm=DESede/CBC/PKCS5Padding 
+      -Dencryption.keyAlgorithm=DESede 
+      -Dencryption.keystore.location=/usr/local/tomcat/shared/classes/alfresco/extension/keystore/keystore 
+      -Dmetadata-keystore.password=mp6yc0UD9e 
+      -Dmetadata-keystore.aliases=metadata 
+      -Dmetadata-keystore.metadata.password=oKIWzVdEdA 
+      -Dmetadata-keystore.metadata.algorithm=DESede '
+  

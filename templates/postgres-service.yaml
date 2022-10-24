@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.postgres.service.name }}
+spec:
+  type: {{ .Values.postgres.service.type }}
+  selector:
+    app: {{ .Chart.Name }}-postgres
+    chart: {{ .Chart.Name }}
+    release: {{ .Release.Name }}
+  ports:
+    - protocol: {{ .Values.postgres.service.protocol }}
+      port: {{ .Values.postgres.service.externalPort }}
+      targetPort: {{ .Values.postgres.image.internalPort }}
+      name: {{ .Values.postgres.service.name }}
+  

@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  # the name of the config map
+  name: {{ .Chart.Name }}-share-configmap
+  labels:
+    app: {{ .Chart.Name }}-share-configmap
+    chart: {{ .Chart.Name }}
+    release: {{ .Release.Name }}
+data:
+  JAVA_OPTS: '
+    -XX:MinRAMPercentage=50 
+    -XX:MaxRAMPercentage=80 
+    -Dalfresco.host={{ .Values.repository.service.name }} 
+    -Dalfresco.port={{ .Values.repository.service.externalPort }}
+    -Dalfresco.context=alfresco 
+    -Dalfresco.protocol=http '
+  REPO_HOST: {{ .Values.repository.service.name }}
+  REPO_PORT: "{{ .Values.repository.service.externalPort }}"

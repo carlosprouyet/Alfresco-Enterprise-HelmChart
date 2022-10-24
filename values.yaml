@@ -1,0 +1,193 @@
+# Default values for alfresco-7-community.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+repository:
+  restartPolicy: Always
+  replicas: 1
+  environment:
+    JAVA_OPTS: "
+      -Dcsrf.filter.enabled=false 
+      -XX:MinRAMPercentage=50 
+      -XX:MaxRAMPercentage=80
+      "
+  image: 
+    repository: quay.io/alfresco/alfresco-content-repository
+    tag: "7.2.1"
+    internalPort: 8080
+  service:
+    type: ClusterIP
+    name: repository-svc
+    externalPort: 80
+    protocol: TCP
+  readinessProbe:
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 10
+    failureThreshold: 6
+  livenessProbe:
+    initialDelaySeconds: 130
+    periodSeconds: 20
+    timeoutSeconds: 10
+
+share:
+  restartPolicy: Always
+  replicas: 1
+  image: 
+    repository: quay.io/alfresco/alfresco-share
+    tag: "7.2.1"
+    internalPort: 8080
+  service:
+    type: ClusterIP
+    name: share-svc
+    externalPort: 80
+    protocol: TCP
+  readinessProbe:
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 15
+  livenessProbe:
+    initialDelaySeconds: 200
+    periodSeconds: 20
+    timeoutSeconds: 10
+
+activemq:
+  restartPolicy: Always
+  replicas: 1
+  image: 
+    repository: alfresco/alfresco-activemq
+    tag: "5.17.1-jre11-rockylinux8"
+    internalPort: 61616
+  service:
+    type: ClusterIP
+    name: activemq-svc
+    externalPort: 80
+    protocol: TCP
+  readinessProbe:
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 10
+    failureThreshold: 6
+  livenessProbe:
+    initialDelaySeconds: 130
+    periodSeconds: 20
+    timeoutSeconds: 10
+    failureThreshold: 1
+
+postgres:
+  restartPolicy: Always
+  replicas: 1
+  config: 
+    user: alfresco
+    password: alfresco
+    db: alfresco
+  image:
+    repository: postgres
+    tag: "13.3"
+    internalPort: 5432
+  service:
+    type: ClusterIP
+    name: postgres-svc
+    externalPort: 80
+    protocol: TCP
+  livenessProbe:
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 6
+    successThreshold: 1
+  readinessProbe:
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 6
+    successThreshold: 1
+
+solr:
+  restartPolicy: Always
+  replicas: 1
+  config:
+    comms: secret
+    createCore: alfresco,archive
+    java_tool_options: -Dalfresco.secureComms.secret=secret
+  image:
+    repository: alfresco/alfresco-search-services
+    tag: "2.0.3"
+    internalPort: 8983
+  service:
+    type: ClusterIP
+    name: solr-svc
+    externalPort: 80
+    protocol: TCP
+  readinessProbe:
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 10
+  livenessProbe:
+    initialDelaySeconds: 130
+    periodSeconds: 20
+    timeoutSeconds: 10
+
+transformCoreAio:
+  restartPolicy: Always
+  replicas: 1
+  image:
+    repository: alfresco/alfresco-transform-core-aio
+    tag: "2.6.0"
+    internalPort: 8090
+  environment:
+    activemqUrl: nio://activemq:61616
+    fileStoreUrl: http://shared-file-store:8099/alfresco/api/-default-/private/sfs/versions/1/file
+    javaOpts: ' -XX:MinRAMPercentage=50 -XX:MaxRAMPercentage=80'
+  service:
+    type: ClusterIP
+    name: transform-core-aio-svc
+    externalPort: 80
+    protocol: TCP
+
+transformRouter:
+  restartPolicy: Always
+  replicas: 1
+  image:
+    repository: quay.io/alfresco/alfresco-transform-router
+    tag: "1.5.3"
+    internalPort: 8095
+  environment:
+    activemq: nio://activemq:61616
+    coreAioUrl: http://transform-core-aio:8090
+    fileStoreUrl: http://shared-file-store:8099/alfresco/api/-default-/private/sfs/versions/1/file
+    java_opts: ' -XX:MinRAMPercentage=50 -XX:MaxRAMPercentage=80'
+  service:
+    type: ClusterIP
+    name: transform-router-svc
+    externalPort: 8095
+    protocol: TCP
+  readinessProbe:
+    initialDelaySeconds: 140
+    periodSeconds: 60
+    timeoutSeconds: 10
+  livenessProbe:
+    initialDelaySeconds: 140
+    periodSeconds: 120
+    timeoutSeconds: 60
+
+sharedFileStore:
+  restartPolicy: Always
+  replicas: 1
+  image:
+    repository: quay.io/alfresco/alfresco-shared-file-store
+    tag: "1.5.3"
+    internalPort: 8099
+  environment:
+    javaOpts: ' -XX:MinRAMPercentage=50 -XX:MaxRAMPercentage=80 '
+    scheduler_cleanup_interval: "86400000"
+    scheduler_content_age_millis: "86400000"
+  service:
+    type: ClusterIP
+    name: transform-router-svc
+    externalPort: 8095
+    protocol: TCP
+
+
+globalHelmProperties:
+  imagePullSecrets: registry-quay

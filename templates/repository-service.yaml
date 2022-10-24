@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.repository.service.name }}
+spec:
+  type: {{ .Values.repository.service.type }}
+  selector:
+    app: {{ .Chart.Name }}-repository
+    chart: {{ .Chart.Name }}
+    release: {{ .Release.Name }}
+  ports:
+    - protocol: {{ .Values.repository.service.protocol }}
+      port: {{ .Values.repository.service.externalPort }}
+      targetPort: {{ .Values.repository.image.internalPort }}
+      name: {{ .Values.repository.service.name }}

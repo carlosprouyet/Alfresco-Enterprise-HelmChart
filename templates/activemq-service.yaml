@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.activemq.service.name }}
+spec:
+  type: {{ .Values.activemq.service.type }}
+  selector:
+    app: {{ .Chart.Name }}-activemq
+    chart: {{ .Chart.Name }}
+    release: {{ .Release.Name }}
+  ports:
+    - protocol: {{ .Values.activemq.service.protocol }}
+      port: {{ .Values.activemq.service.externalPort }}
+      targetPort: {{ .Values.activemq.image.internalPort }}
+      name: {{ .Values.activemq.service.name }}
+
+

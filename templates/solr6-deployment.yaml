@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: {{ .Chart.Name }}-solr
+    chart: {{ .Chart.Name }}
+    release: {{ .Release.Name }}
+  name: {{ .Chart.Name }}-solr
+spec:
+  replicas: {{ .Values.solr.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Chart.Name }}-solr
+      chart: {{ .Chart.Name }}
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Chart.Name }}-solr
+        chart: {{ .Chart.Name }}
+        release: {{ .Release.Name }}
+    spec:
+      containers:
+        - envFrom:
+            - configMapRef:
+                name: {{ .Chart.Name }}-solr-configmap
+          image: {{ .Values.solr.image.repository }}:{{ .Values.solr.image.tag }}
+          name: {{ .Release.Name }}-solr6
+          ports:
+            - containerPort: {{ .Values.solr.image.internalPort }}
+          volumeMounts:
+            - mountPath: /opt/alfresco-search-services/data
+              name: solr-data
+          readinessProbe:
+            httpGet:
+              path: /solr
+              port: {{ .Values.solr.image.internalPort }}
+            initialDelaySeconds: {{ .Values.solr.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.solr.readinessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.solr.readinessProbe.timeoutSeconds }}
+          livenessProbe:
+            httpGet:
+              path: /solr/admin/info/system
+              port: {{ .Values.solr.image.internalPort }}
+            initialDelaySeconds: {{ .Values.solr.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.solr.livenessProbe.periodSeconds }}
+            failureThreshold: 1
+            timeoutSeconds: {{ .Values.solr.livenessProbe.timeoutSeconds }}
+      restartPolicy: {{ .Values.solr.restartPolicy }}
+      volumes:
+        - name: solr-data
+          persistentVolumeClaim:
+            claimName: solr-data
+

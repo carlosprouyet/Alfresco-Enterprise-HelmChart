@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: {{ .Chart.Name }}-transform-core-aio
+    chart: {{ .Chart.Name }}
+    release: {{ .Release.Name }}
+  name: {{ .Chart.Name }}-transform-core-aio
+spec:
+  replicas: {{ .Values.transformCoreAio.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Chart.Name }}-transform-core-aio
+      chart: {{ .Chart.Name }}
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Chart.Name }}-transform-core-aio
+        chart: {{ .Chart.Name }}
+        release: {{ .Release.Name }}
+    spec:
+      imagePullSecrets:
+        - name: {{ .Values.globalHelmProperties.imagePullSecrets }}
+      containers:
+        - env:
+            - name: ACTIVEMQ_URL
+              value: {{ .Values.transformCoreAio.environment.activemqUrl }}
+            - name: FILE_STORE_URL
+              value: {{ .Values.transformCoreAio.environment.fileStoreUrl }}
+            - name: JAVA_OPTS
+              value: {{ .Values.transformCoreAio.environment.javaOpts }}
+          image: {{ .Values.transformCoreAio.image.repository }}:{{ .Values.transformCoreAio.image.tag }}
+          name: {{ .Release.Name }}-transform-core-aio
+          ports:
+            - containerPort: {{ .Values.transformCoreAio.image.internalPort }}

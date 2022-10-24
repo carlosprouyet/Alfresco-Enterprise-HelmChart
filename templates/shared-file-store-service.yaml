@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.sharedFileStore.service.name }}
+spec:
+  type: {{ .Values.sharedFileStore.service.type }}
+  selector:
+    app: {{ .Chart.Name }}-shared-file-store
+    chart: {{ .Chart.Name }}
+    release: {{ .Release.Name }}
+  ports:
+    - protocol: {{ .Values.sharedFileStore.service.protocol }}
+      port: {{ .Values.sharedFileStore.service.externalPort }}
+      targetPort: {{ .Values.sharedFileStore.image.internalPort }}
+      name: {{ .Values.sharedFileStore.service.name }}

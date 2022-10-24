@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  # the name of the config map
+  name: {{ .Chart.Name }}-postgres-configmap
+  labels:
+    app: {{ .Chart.Name }}-postgres-configmap
+    chart: {{ .Chart.Name }}
+    release: {{ .Release.Name }}
+data:
+  POSTGRES_DB: {{ .Values.postgres.config.db }}
+  POSTGRES_PASSWORD: {{ .Values.postgres.config.password }}
+  POSTGRES_USER: {{ .Values.postgres.config.user }}

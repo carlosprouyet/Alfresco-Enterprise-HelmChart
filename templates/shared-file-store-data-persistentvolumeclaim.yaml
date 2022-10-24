@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  labels:
+    app: {{ .Chart.Name }}-shared-file-store-data
+    chart: {{ .Chart.Name }}
+    release: {{ .Release.Name }}
+  name: shared-file-store-data
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 20Gi

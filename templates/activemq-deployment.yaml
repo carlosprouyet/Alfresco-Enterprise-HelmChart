@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: {{ .Chart.Name }}-activemq
+    chart: {{ .Chart.Name }}
+    release: {{ .Release.Name }}
+  name: {{ .Chart.Name }}-activemq
+spec:
+  replicas: {{ .Values.activemq.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Chart.Name }}-activemq
+      chart: {{ .Chart.Name }}
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Chart.Name }}-activemq
+        chart: {{ .Chart.Name }}
+        release: {{ .Release.Name }}
+    spec:
+      containers:
+        - image: "{{ .Values.activemq.image.repository }}:{{ .Values.activemq.image.tag }}"
+          name: {{ .Release.Name }}-activemq
+          ports:
+            - containerPort: {{ .Values.activemq.image.internalPort }}
+          readinessProbe:
+            tcpSocket:
+              port: {{ .Values.activemq.image.internalPort }}
+            initialDelaySeconds: {{ .Values.activemq.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.activemq.readinessProbe.periodSeconds }}
+            failureThreshold: {{ .Values.activemq.readinessProbe.failureThreshold }}
+            timeoutSeconds: {{ .Values.activemq.readinessProbe.timeoutSeconds }}
+          livenessProbe:
+            tcpSocket:
+              port: {{ .Values.activemq.image.internalPort }}
+            initialDelaySeconds: {{ .Values.activemq.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.activemq.livenessProbe.periodSeconds }}
+            failureThreshold: {{ .Values.activemq.livenessProbe.failureThreshold }}
+            timeoutSeconds: {{ .Values.activemq.livenessProbe.timeoutSeconds }}
+      restartPolicy: {{ .Values.activemq.restartPolicy }}
+
+

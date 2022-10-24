@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: {{ .Chart.Name }}-repository
+    chart: {{ .Chart.Name }}
+    release: {{ .Release.Name }}
+  name: {{ .Chart.Name }}-repository
+spec:
+  replicas: {{ .Values.repository.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Chart.Name }}-repository
+      chart: {{ .Chart.Name }}
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Chart.Name }}-repository
+        chart: {{ .Chart.Name }}
+        release: {{ .Release.Name }}
+    spec:
+      imagePullSecrets:
+        - name: {{ .Values.globalHelmProperties.imagePullSecrets }}
+      containers:
+        - envFrom:
+            - configMapRef:
+                name: {{ .Chart.Name }}-repository-configmap
+          image: "{{ .Values.repository.image.repository }}:{{ .Values.repository.image.tag }}"
+          name: {{ .Release.Name }}-repository
+          ports:
+            - containerPort: {{ .Values.repository.image.internalPort }}
+          volumeMounts:
+            - mountPath: /usr/local/tomcat/alf_data
+              name: alfresco-data
+          readinessProbe:
+            httpGet:
+              path: /alfresco/api/-default-/public/alfresco/versions/1/probes/-ready-
+              port: {{ .Values.repository.image.internalPort }}
+            initialDelaySeconds: {{ .Values.repository.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.repository.readinessProbe.periodSeconds }}
+            failureThreshold: {{ .Values.repository.readinessProbe.failureThreshold }}
+            timeoutSeconds: {{ .Values.repository.readinessProbe.timeoutSeconds }}
+          livenessProbe:
+            httpGet:
+              path: /alfresco/api/-default-/public/alfresco/versions/1/probes/-live-
+              port: {{ .Values.repository.image.internalPort }}
+            initialDelaySeconds: {{ .Values.repository.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.repository.livenessProbe.periodSeconds }}
+            failureThreshold: 1
+            timeoutSeconds: {{ .Values.repository.livenessProbe.timeoutSeconds }}
+      restartPolicy: {{ .Values.repository.restartPolicy }}
+      volumes:
+        - name: alfresco-data
+          persistentVolumeClaim:
+            claimName: alfresco-data
+

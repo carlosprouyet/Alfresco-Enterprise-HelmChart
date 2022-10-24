@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: {{ .Chart.Name }}-share
+    chart: {{ .Chart.Name }}
+    release: {{ .Release.Name }}
+  name: {{ .Chart.Name }}-share
+spec:
+  replicas: {{ .Values.share.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Chart.Name }}-share
+      chart: {{ .Chart.Name }}
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Chart.Name }}-share
+        chart: {{ .Chart.Name }}
+        release: {{ .Release.Name }}
+    spec:
+      imagePullSecrets:
+        - name: {{ .Values.globalHelmProperties.imagePullSecrets }}
+      containers:
+        - envFrom:
+          - configMapRef:
+                name: {{ .Chart.Name }}-share-configmap
+          image: {{ .Values.share.image.repository }}:{{ .Values.share.image.tag }}
+          name: {{ .Release.Name }}-share
+          ports:
+            - containerPort: {{ .Values.share.image.internalPort }}
+          readinessProbe:
+            httpGet:
+              path: /share
+              port: {{ .Values.share.image.internalPort }}
+            initialDelaySeconds: {{ .Values.share.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.share.readinessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.share.readinessProbe.timeoutSeconds }}
+          livenessProbe:
+            httpGet:
+              path: /share
+              port: {{ .Values.share.image.internalPort }}
+            initialDelaySeconds: {{ .Values.share.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.share.livenessProbe.periodSeconds }}
+            failureThreshold: 1
+            timeoutSeconds: {{ .Values.share.livenessProbe.timeoutSeconds }}
+      restartPolicy: {{ .Values.share.restartPolicy }}
+

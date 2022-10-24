@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: {{ .Chart.Name }}-transform-router
+    chart: {{ .Chart.Name }}
+    release: {{ .Release.Name }}
+  name: {{ .Chart.Name }}-transform-router
+spec:
+  replicas: {{ .Values.transformRouter.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Chart.Name }}-transform-router
+      chart: {{ .Chart.Name }}
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Chart.Name }}-transform-router
+        chart: {{ .Chart.Name }}
+        release: {{ .Release.Name }}
+    spec:
+      imagePullSecrets:
+        - name: {{ .Values.globalHelmProperties.imagePullSecrets }}
+      containers:
+        - env:
+            - name: ACTIVEMQ_URL
+              value: {{ .Values.transformRouter.environment.activemqUrl }}
+            - name: CORE_AIO_URL
+              value: {{ .Values.transformRouter.environment.coreAioUrl }}
+            - name: FILE_STORE_URL
+              value: {{ .Values.transformRouter.environment.fileStoreUrl }}
+            - name: JAVA_OPTS
+              value: {{ .Values.transformRouter.environment.javaOpts }}
+          image: {{ .Values.transformRouter.image.repository }}:{{ .Values.transformRouter.image.tag }}
+          name: {{ .Release.Name }}-transform-router
+          ports:
+            - containerPort: {{ .Values.transformRouter.image.internalPort }}
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: {{ .Values.transformRouter.image.internalPort }}
+            initialDelaySeconds: {{ .Values.transformRouter.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.transformRouter.readinessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.transformRouter.readinessProbe.timeoutSeconds }}
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: {{ .Values.transformRouter.image.internalPort }}
+            initialDelaySeconds: {{ .Values.transformRouter.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.transformRouter.livenessProbe.periodSeconds }}
+            failureThreshold: 1
+            timeoutSeconds: {{ .Values.transformRouter.livenessProbe.timeoutSeconds }}
+      restartPolicy: {{ .Values.transformRouter.restartPolicy }}
+
