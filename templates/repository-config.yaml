@@ -32,8 +32,8 @@ data:
       -Dmessaging.broker.url="failover:(nio://{{ .Values.activemq.service.name }}:{{ .Values.activemq.service.externalPort}})?timeout=3000&jms.useCompression=true" 
       -Ddeployment.method=DOCKER_COMPOSE
       -Dtransform.service.enabled=true
-      -Dtransform.service.url=http://transform-router:8095
-      -Dsfs.url=http://shared-file-store:8099/ 
+      -Dtransform.service.url=http://{{ .Values.transformRouter.service.name}}:{{ .Values.transformRouter.service.externalPort}}
+      -Dsfs.url=http://{{ .Values.sharedFileStore.service.name}}:{{ .Values.sharedFileStore.service.externalPort}}
       -DlocalTransform.core-aio.url=http://{{ .Values.transformCoreAio.service.name }}:{{ .Values.transformCoreAio.service.externalPort}}/ 
        '
   JAVA_TOOL_OPTIONS: '

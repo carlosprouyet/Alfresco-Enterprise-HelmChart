@@ -33,8 +33,11 @@ spec:
               name: solr-data
           readinessProbe:
             httpGet:
-              path: /solr
+              path: /solr/alfresco/admin/ping
               port: {{ .Values.solr.image.internalPort }}
+              httpHeaders:
+              - name: X-Alfresco-Search-Secret
+                value: secret
             initialDelaySeconds: {{ .Values.solr.readinessProbe.initialDelaySeconds }}
             periodSeconds: {{ .Values.solr.readinessProbe.periodSeconds }}
             timeoutSeconds: {{ .Values.solr.readinessProbe.timeoutSeconds }}
@@ -42,6 +45,9 @@ spec:
             httpGet:
               path: /solr/admin/info/system
               port: {{ .Values.solr.image.internalPort }}
+              httpHeaders:
+              - name: X-Alfresco-Search-Secret
+                value: secret
             initialDelaySeconds: {{ .Values.solr.livenessProbe.initialDelaySeconds }}
             periodSeconds: {{ .Values.solr.livenessProbe.periodSeconds }}
             failureThreshold: 1

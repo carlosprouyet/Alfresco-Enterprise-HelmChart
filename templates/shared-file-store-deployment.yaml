@@ -5,7 +5,7 @@ metadata:
     app: {{ .Chart.Name }}-shared-file-store
     chart: {{ .Chart.Name }}
     release: {{ .Release.Name }}
-  name: shared-file-store
+  name: {{ .Chart.Name }}-shared-file-store
 spec:
   replicas: {{ .Values.sharedFileStore.replicas }}
   selector:
@@ -25,9 +25,9 @@ spec:
             - name: JAVA_OPTS
               value: {{ .Values.sharedFileStore.environment.java_opts }}
             - name: scheduler.cleanup.interval
-              value: {{ .Values.sharedFileStore.environment.scheduler_cleanup_interval }}
+              value: "86400000"
             - name: scheduler.content.age.millis
-              value: {{ .Values.sharedFileStore.environment.scheduler_content_age_millis }}
+              value: "86400000"
           image: {{ .Values.sharedFileStore.image.repository }}:{{ .Values.sharedFileStore.image.tag }}
           name: {{ .Release.Name }}-shared-file-store
           ports:
@@ -40,4 +40,3 @@ spec:
         - name: shared-file-store-data
           persistentVolumeClaim:
             claimName: shared-file-store-data
-
