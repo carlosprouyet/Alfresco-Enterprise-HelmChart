@@ -9,6 +9,6 @@ entries:
     name: alfresco-enterprise-7
     type: application
     urls:
-    - https://github.com/carlosprouyet/Alfresco-Enterprise-HelmChart/chart/alfresco-enterprise-7-2.0.0.tgz
+    - https://github.com/carlosprouyet/Alfresco-Enterprise-HelmChart/index/alfresco-enterprise-7-2.0.0.tgz
     version: 2.0.0
 generated: "2022-12-11T13:32:23.6588498+01:00"
