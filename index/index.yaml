@@ -3,7 +3,7 @@ entries:
   alfresco-enterprise-7:
   - apiVersion: v2
     appVersion: 1.0.0
-    created: "2022-12-11T13:32:23.6651444+01:00"
+    created: "2022-12-11T17:25:26.5811655+01:00"
     description: A Helm chart for Kubernetes
     digest: c646ed6f51f3fa5349af988afcff4d7a585105c2c23412c7d0b506004ef42ee3
     name: alfresco-enterprise-7
@@ -11,4 +11,4 @@ entries:
     urls:
     - https://github.com/carlosprouyet/Alfresco-Enterprise-HelmChart/index/alfresco-enterprise-7-2.0.0.tgz
     version: 2.0.0
-generated: "2022-12-11T13:32:23.6588498+01:00"
+generated: "2022-12-11T17:25:26.5677857+01:00"
